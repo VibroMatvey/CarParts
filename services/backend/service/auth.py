@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+
+from sqlalchemy.orm import selectinload
 from typing import Annotated
 
 from fastapi import Depends, status, HTTPException
@@ -58,7 +60,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: As
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         login: str = payload.get("login")
-        if login is None:
+        role: str = payload.get("role")
+        if login is None or role not in ['ROLE_ADMIN', 'ROLE_USER']:
             raise credentials_exception
         token_data = schemas.TokenData(username=login)
     except JWTError:
@@ -70,10 +73,26 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: As
     return user
 
 
-async def get_current_active_user(
-        current_user: Annotated[models.User, Depends(get_current_user)]
-):
-    return current_user
+async def get_current_admin(token: Annotated[str, Depends(oauth2_scheme)], db: AsyncSession = Depends(get_session)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="forbidden",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        login: str = payload.get("login")
+        role: str = payload.get("role")
+        if login is None or role != 'ROLE_ADMIN':
+            raise credentials_exception
+        token_data = schemas.TokenData(username=login)
+    except JWTError:
+        raise credentials_exception
+    res = await db.execute(select(models.User).where(models.User.login == login))
+    user = res.scalars().first()
+    if user is None:
+        raise credentials_exception
+    return user
 
 
 async def token(form_data, db):
@@ -86,6 +105,6 @@ async def token(form_data, db):
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"login": user.login}, expires_delta=access_token_expires
+        data={"id": user.id, "login": user.login, "role": user.role.title}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
