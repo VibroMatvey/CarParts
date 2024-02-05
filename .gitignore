@@ -1,0 +1,6 @@
+/services/backend/venv
+/services/backend/static/images/*
+/services/backend/static/videos/*
+/services/backend/static/files/*
+.idea
+__pycache__
