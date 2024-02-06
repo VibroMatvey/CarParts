@@ -11,6 +11,6 @@ class Part(Base):
     title = Column(String)
     price = Column(Float)
     code = Column(String)
-    supplier_id = Column('supplier_id', Integer(), ForeignKey('suppliers.id'), nullable=False)
+    supplier_id = Column('supplier_id', Integer(), ForeignKey('suppliers.id', ondelete='SET NULL'), nullable=True)
     supplier = relationship("Supplier", back_populates="parts", lazy="selectin")
     order_parts = relationship("OrderParts", back_populates="part", lazy="selectin")

@@ -5,7 +5,7 @@ class PartCreate(BaseModel):
     title: str
     price: float
     code: str
-    supplier_id: int
+    supplier_id: int | None = None
 
 
 class PartEdit(BaseModel):
@@ -25,4 +25,4 @@ class PartSupplier(BaseModel):
 
 class Part(PartCreate):
     id: int
-    supplier: PartSupplier
+    supplier: PartSupplier | None = None

@@ -17,7 +17,7 @@ class SupplierPart(BaseModel):
     title: str
     price: float
     code: str
-    supplier_id: int
+    supplier_id: int | None = None
 
 
 class Supplier(SupplierCreate):
