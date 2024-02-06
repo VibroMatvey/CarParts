@@ -8,7 +8,12 @@ class OrderCreate(BaseModel):
     parts: list[OrderPartCreate]
 
 
+class OrderEdit(BaseModel):
+    status_id: int
+
+
 class Order(OrderCreate):
     id: int
+    total: float
     parts: list[OrderPart]
     status: OrderStatus

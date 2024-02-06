@@ -1,14 +1,14 @@
 import os
+from typing import Annotated
 
 from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Annotated
 
 import repository
 import schemas
 from config.db import get_session
-from service import get_current_admin
+from service import get_current_admin, get_current_user
 
 tag = os.path.basename(__file__).split('.py')[0]
 router = APIRouter(
@@ -36,7 +36,7 @@ async def create_supplier_handler(
     name="Получить всех поставщиков"
 )
 async def get_supplier_handler(
-        current_user: Annotated[schemas.User, Depends(get_current_admin)],
+        current_user: Annotated[schemas.User, Depends(get_current_user)],
         db: AsyncSession = Depends(get_session)
 ):
     return await repository.get_suppliers(db)
@@ -48,7 +48,7 @@ async def get_supplier_handler(
     name="Получить поставщика по идентификатору"
 )
 async def get_supplier_handler(
-        current_user: Annotated[schemas.User, Depends(get_current_admin)],
+        current_user: Annotated[schemas.User, Depends(get_current_user)],
         supplier_id: int,
         db: AsyncSession = Depends(get_session),
 

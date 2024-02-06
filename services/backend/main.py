@@ -6,7 +6,7 @@ from sqlalchemy import select
 import models
 from config.const import env
 from config.db import async_session
-from routers import User, Token, Role, Supplier, Part
+from routers import User, Token, Role, Supplier, Part, Order, OrderStatus
 
 docs = '/api'
 
@@ -23,16 +23,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(Token.router)
-app.include_router(User.router)
 app.include_router(Role.router)
+app.include_router(OrderStatus.router)
+app.include_router(User.router)
 app.include_router(Supplier.router)
 app.include_router(Part.router)
+app.include_router(Order.router)
 
 
 @app.on_event('startup')
 async def startup_event():
     db = async_session()
     roles = ["ROLE_ADMIN", "ROLE_USER"]
+    statuses = ["STATUS_CREATED", "STATUS_TRANSIT", "STATUS_DONE"]
     users = ["admin", "user"]
     for role in roles:
         res = await db.execute(select(models.Role).where(models.Role.title == role))
@@ -44,6 +47,16 @@ async def startup_event():
             db.add(db_role)
             await db.commit()
             await db.refresh(db_role)
+    for status in statuses:
+        res = await db.execute(select(models.OrderStatus).where(models.OrderStatus.title == status))
+        db_status = res.scalars().first()
+        if not db_status:
+            db_status = models.OrderStatus(
+                title=status
+            )
+            db.add(db_status)
+            await db.commit()
+            await db.refresh(db_status)
     for user in users:
         role_user = 2
         if user == "admin":

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from schemas.Part import Part, PartCreate
+from schemas.Part import Part
 
 
 class OrderPartCreate(BaseModel):
@@ -10,4 +10,6 @@ class OrderPartCreate(BaseModel):
 
 class OrderPart(OrderPartCreate):
     id: int
+    count: int
+    total: float
     part: Part

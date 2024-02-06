@@ -14,4 +14,4 @@ class Order(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     status_id = Column('status_id', Integer(), ForeignKey('order_statuses.id'), nullable=False)
     status = relationship("OrderStatus", back_populates="orders", lazy="selectin")
-    parts = relationship("OrderParts", back_populates="order", lazy="selectin")
+    parts = relationship("OrderParts", back_populates="order", lazy="selectin", passive_deletes=True)
