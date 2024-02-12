@@ -8,8 +8,11 @@ services:
       - 8000
     environment:
       - DATABASE_URL=postgresql+asyncpg://root:root@db:5432/database
+      - TZ=Europe/Moscow
     volumes:
       - ./services/backend:/app
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime
     command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
     depends_on:
       - db
@@ -26,8 +29,12 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=database
+      - TZ=Europe/Moscow
+      - DEBIAN_FRONTEND=noninteractive
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     restart: always
 
   traefik:

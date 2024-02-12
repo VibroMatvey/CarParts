@@ -13,3 +13,9 @@ class UserCreate(BaseModel):
     login: str
     password: str
     role_id: int
+
+
+class UserEdit(BaseModel):
+    login: str | None = None
+    password: str | None = None
+    role_id: int | None = None

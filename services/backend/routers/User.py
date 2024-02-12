@@ -89,7 +89,7 @@ async def delete_user_handler(
 async def edit_user_handler(
         current_user: Annotated[schemas.User, Depends(get_current_admin)],
         user_id: int,
-        user_schema: schemas.UserCreate,
+        user_schema: schemas.UserEdit,
         db: AsyncSession = Depends(get_session),
 
 ):

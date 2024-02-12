@@ -10,6 +10,7 @@ async def create_part(part_schema: schemas.PartCreate, db: AsyncSession) -> sche
     db_part = models.Part(
         title=part_schema.title,
         price=part_schema.price,
+        sale_price=part_schema.sale_price,
         code=part_schema.code,
         supplier_id=part_schema.supplier_id,
     )

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 from schemas.OrderParts import OrderPartCreate, OrderPart
@@ -16,4 +18,6 @@ class Order(OrderCreate):
     id: int
     total: float
     parts: list[OrderPart]
+    created_at: datetime
+    updated_at: datetime | None = None
     status: OrderStatus

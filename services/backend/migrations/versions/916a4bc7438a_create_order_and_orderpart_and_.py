@@ -29,7 +29,7 @@ def upgrade() -> None:
     op.create_table('orders',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('total', sa.Float(), nullable=True),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('status_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['status_id'], ['order_statuses.id'], ),

@@ -1,3 +1,6 @@
+import calendar
+import datetime
+
 from fastapi import HTTPException
 from sqlalchemy import select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,7 +27,8 @@ async def create_order(part_order: schemas.OrderCreate, db: AsyncSession) -> sch
     db_order = models.Order(
         parts=order_parts,
         total=total,
-        status_id=db_status.id
+        status_id=db_status.id,
+        created_at=datetime.datetime.now()
     )
     db.add(db_order)
     await db.commit()
@@ -73,3 +77,23 @@ async def edit_order(db: AsyncSession, oder_schema: schemas.OrderEdit,
     res = await db.execute(select(models.Order).where(models.Order.id == order_id))
     order = res.scalars().first()
     return order
+
+
+async def get_month_orders(db: AsyncSession) -> list[schemas.StatisticDetails]:
+    now = datetime.datetime.now()
+    num_days = calendar.monthrange(now.year, now.month)[1]
+    days = [datetime.date(now.year, now.month, day) for day in range(1, num_days + 1)]
+    result = []
+    for day in days:
+        if datetime.date.today() < day:
+            continue
+        dt_min = datetime.datetime.combine(day, datetime.datetime.min.time())
+        dt_max = datetime.datetime.combine(day, datetime.datetime.max.time())
+        res = await db.execute(
+            select(models.Order).where(models.Order.created_at >= dt_min, models.Order.created_at < dt_max))
+        orders = res.scalars().all()
+        total = 0
+        for order in orders:
+            total += order.total
+        result.append(schemas.StatisticDetails(date=day, count=len(orders), total=total))
+    return result

@@ -6,14 +6,14 @@ from sqlalchemy import select
 import models
 from config.const import env
 from config.db import async_session
-from routers import User, Token, Role, Supplier, Part, Order, OrderStatus
+from routers import User, Token, Role, Supplier, Part, Order, OrderStatus, Statistic, Sales, SalesStatus
 
 docs = '/api'
 
 if env['APP_ENV'] == 'prod':
     docs = None
 
-app = FastAPI(docs_url=docs, redoc_url=None)
+app = FastAPI(docs_url=docs, redoc_url=None, title="CarPartsApi", version="1.0.0")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware(
     CORSMiddleware,
@@ -25,17 +25,21 @@ app.add_middleware(
 app.include_router(Token.router)
 app.include_router(Role.router)
 app.include_router(OrderStatus.router)
+app.include_router(SalesStatus.router)
 app.include_router(User.router)
 app.include_router(Supplier.router)
 app.include_router(Part.router)
 app.include_router(Order.router)
+app.include_router(Sales.router)
+app.include_router(Statistic.router)
 
 
 @app.on_event('startup')
 async def startup_event():
     db = async_session()
     roles = ["ROLE_ADMIN", "ROLE_USER"]
-    statuses = ["STATUS_CREATED", "STATUS_TRANSIT", "STATUS_DONE"]
+    order_statuses = ["STATUS_CREATED", "STATUS_TRANSIT", "STATUS_DONE"]
+    sales_statuses = ["STATUS_CANCELED", "STATUS_WAIT", "STATUS_SALE"]
     users = ["admin", "user"]
     for role in roles:
         res = await db.execute(select(models.Role).where(models.Role.title == role))
@@ -47,11 +51,21 @@ async def startup_event():
             db.add(db_role)
             await db.commit()
             await db.refresh(db_role)
-    for status in statuses:
+    for status in order_statuses:
         res = await db.execute(select(models.OrderStatus).where(models.OrderStatus.title == status))
         db_status = res.scalars().first()
         if not db_status:
             db_status = models.OrderStatus(
+                title=status
+            )
+            db.add(db_status)
+            await db.commit()
+            await db.refresh(db_status)
+    for status in sales_statuses:
+        res = await db.execute(select(models.SalesStatus).where(models.SalesStatus.title == status))
+        db_status = res.scalars().first()
+        if not db_status:
+            db_status = models.SalesStatus(
                 title=status
             )
             db.add(db_status)

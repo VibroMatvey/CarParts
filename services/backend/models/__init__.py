@@ -5,3 +5,5 @@ from .Supplier import *
 from .Order import *
 from .OrderParts import *
 from .OrderStatus import *
+from .Sales import *
+from .SalesStatus import *

@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class PartCreate(BaseModel):
     title: str
     price: float
+    sale_price: float
     code: str
     supplier_id: int | None = None
 
@@ -11,8 +12,9 @@ class PartCreate(BaseModel):
 class PartEdit(BaseModel):
     title: str | None = None
     price: float | None = None
+    sale_price: float | None = None
     code: str | None = None
-    supplier_id: str | None = None
+    supplier_id: int | None = None
 
 
 class PartSupplier(BaseModel):

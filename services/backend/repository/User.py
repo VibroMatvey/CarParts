@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import bcrypt
 from fastapi import HTTPException
 from sqlalchemy import select, delete, update
@@ -49,8 +51,11 @@ async def delete_user(db: AsyncSession, user_id: int) -> bool or None:
     return res.rowcount
 
 
-async def edit_user(db: AsyncSession, user_schema: schemas.UserCreate, user_id: int) -> schemas.User or None:
+async def edit_user(db: AsyncSession, user_schema: schemas.UserEdit, user_id: int) -> schemas.User or None:
+    salt = bcrypt.gensalt(10)
     update_data = user_schema.model_dump(exclude_unset=True)
+    if update_data.get('password'):
+        update_data['password'] = bcrypt.hashpw(update_data['password'].encode(), salt).decode('utf-8')
     res = await db.execute(update(models.User).where(models.User.id == user_id).values(update_data))
     if not res.rowcount:
         raise HTTPException(status_code=404, detail=f"User with id {user_id} not found")

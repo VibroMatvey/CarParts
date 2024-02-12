@@ -3,6 +3,9 @@ from .OrderParts import *
 from .OrderStatus import *
 from .Part import *
 from .Role import *
+from .Sales import *
+from .SalesStatus import *
+from .Statistic import *
 from .Supplier import *
 from .Token import *
 from .User import *
