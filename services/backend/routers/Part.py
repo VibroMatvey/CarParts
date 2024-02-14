@@ -36,7 +36,6 @@ async def create_part_handler(
     name="Получить все запчасти"
 )
 async def get_part_handler(
-        current_user: Annotated[schemas.User, Depends(get_current_user)],
         db: AsyncSession = Depends(get_session)
 ):
     return await repository.get_parts(db)
